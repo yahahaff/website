@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block pagetitle %} 用户管理   {% endblock %}
+{% block pagetitle_1 %} 系统用户 {% endblock %}
+
+
+
+{% block page_content %}
+    <section class="content" xmlns="http://www.w3.org/1999/html">
+
+        <form method="post" id="user_submit" class="form-horizontal" role="form" action="{% url "UserDetail" pk=UserDetail.id %}">
+
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">用户名</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" id="username"
+                           placeholder="{{ UserDetail.username }}" value="{{ UserDetail.username }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">密码</label>
+                <div class="col-sm-8">
+                    <input type="password" class="form-control" id="password"
+                           placeholder="请输入密码">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">姓名</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" id="first_name"
+                           placeholder="{{ UserDetail.first_name }}" value="{{ UserDetail.first_name }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">邮箱</label>
+                <div class="col-sm-8">
+                    <input type="email" class="form-control" id="email"
+                           placeholder="{{ UserDetail.email }}" value="{{ UserDetail.email }}">
+                </div>
+            </div>
+             <div class="form-group">
+                 <label for="name" class="col-sm-2 control-label">角色</label>
+                 {% if UserDetail.is_superuser == True %}
+
+                    <label><input   type="radio"   value=True    name="radioRole"   checked="checked"/>管理员</label>
+                    <label><input   type="radio"   value=False   name="radioRole" />普通用户</label>
+                  {% else %}
+                    <label><input   type="radio"   value=True    name="radioRole"/>管理员</label>
+                    <label><input   type="radio"   value=False   name="radioRole"   checked="checked"/>普通用户</label>
+                 {% endif %}
+
+            </div>
+            <div class="col-sm-2 col-sm-offset-4">
+                <button class="btn btn-primary btn-info " type="submit">取消</button>
+                <button class="btn btn-primary btn-success" type="submit">提交更新</button>
+            </div>
+
+        </form>
+
+        <!-- /.box-body -->
+
+    </section>
+{% endblock %}
+
+

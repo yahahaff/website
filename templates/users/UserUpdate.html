@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+
+{% block pagetitle %} 更新用户   {% endblock %}
+{% block pagetitle_1 %} 系统用户 {% endblock %}
+
+
+
+{% block page_content %}
+    <section class="content " xmlns="http://www.w3.org/1999/html">
+
+        <div class="row">
+            <div class="col-lg-6 col-md-8 col-sm-10">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% include 'users/userUpdate_form.html' %}
+
+                    <button type="submit" class="btn btn-success">更新</button>
+                </form>
+            </div>
+        </div>
+
+    </section>
+{% endblock %}
+
+

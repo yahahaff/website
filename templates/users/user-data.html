@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %} 用户列表 {% endblock %}
+
+{% block page_header %}
+    <section class="content-header">
+        <h1>
+            用户管理
+
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active">用户列表</li>
+        </ol>
+    </section>
+
+{% endblock %}
+
+{% block body %}
+    <section class="content">
+
+        <div class="box">
+            <div class="box-header">
+                <a href="{% url 'signup' %}" class="btn btn-success">新建用户</a>
+
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body" >
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>用户名</th>
+                        <th>Email</th>
+                        <th>角色</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.is_superuser}}</td>
+                            <td>{{ user.is_active }}</td>
+                            <td>
+                            <a href="{% url 'signup' %}" class="btn btn-info btn-sm">编辑</a>
+                            <a href="http://google.com" class="btn btn-warning btn-sm">封停</a>
+                            <a href="http://google.com" class="btn btn-danger btn-sm">删除</a>
+                            </td>
+
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+
+                {% if is_paginated %}
+
+                    <ul class="pagination justify-content-end">
+                        <li class="page-item disabled">
+
+                        {% if page_obj.has_previous %}
+                            <li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+                        {% else %}
+                            <li class="disabled"><span>&laquo;</span></li>
+                        {% endif %}
+                        {% for i in paginator.page_range %}
+                            {% if page_obj.number == i %}
+                                <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                            {% else %}
+                                <li><a href="?page={{ i }}">{{ i }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                            <li><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+                        {% else %}
+                            <li class="disabled"><span>&raquo;</span></li>
+                        {% endif %}
+                    </ul>
+                    </ul>
+
+                {% endif %}
+            </div>
+            <!-- /.box-body -->
+        </div>
+
+    </section>
+{% endblock %}

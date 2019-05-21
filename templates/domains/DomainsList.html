@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block pagetitle %} 域名管理   {% endblock %}
+{% block pagetitle_1 %} 域名列表 {% endblock %}
+
+
+
+{% block page_content %}
+    <section class="content" xmlns="http://www.w3.org/1999/html">
+        <div class="box">
+            <div class="box-header">
+                <a href="{% url 'DomainCreate' %}" class="btn btn-primary btn-success">新增域名</a>
+                <form style="width: 253px" id="search_from" method="get" action="" class="pull-right mail-search">
+                    <div class="input-group">
+                        <input style="width: 200px" type="text" id="searche_input" name="Searche" placeholder="Searche" class="form-control ">
+                        <div class="input-group-btn">
+                            <button id="search_btn" type="submit"   class="btn  btn-primary btn-success">搜索</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+
+            <!-- /.box-header -->
+            <div class="box-body text-center" >
+                <table id="example1" class=" text-center table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th class="text-center">
+                            <input type="checkbox" id="check_all" onclick="checkAll('check_all', 'checked')">
+                        </th>
+                        <th>域名</th>
+                        <th>平台</th>
+                        <th>解析地址</th>
+                        <th>是否Https</th>
+                        <th>采购时间</th>
+                        <th>到期期时间</th>
+                        <th>剩余天数</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    {% for domain in domains %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="checked" value="{{ domain.id }}">
+                            </td>
+                            <td>{{ domain.domain }}</td>
+                            <td>{{ domain.platform.platform_name}}</td>
+                            <td>
+                                {% if domain.resolve.ip %}
+                                    {{ domain.resolve.ip }}
+                                 {% else %}
+                                    第三方
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if domain.is_encryption %}
+                                    <i class="fa fa-check text-green"></i>
+                                {% else %}
+                                    <i class="fa fa-times text-red"></i>
+                            {% endif %}
+                            </td>
+                            <td>{{ domain.start_time }}</td>
+                            <td>{{ domain.expire_time }}</td>
+                            <td>
+                                {% if domain.remainder_days  %}
+                                    {% if domain.remainder_days < 5 %}
+                                        <p style="color:#FF3342";>{{ domain.remainder_days }}</p>
+                                    {% else %}
+                                        {{ domain.remainder_days }}
+                                    {% endif %}
+                                {% elif domain.remainder_days == None %}
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                {% if domain.is_active %}
+                                    <i class="fa fa-circle text-green"></i>
+                                {% else %}
+                                    <i class="fa fa-circle text-red"></i>
+                            {% endif %}
+                            </td>
+
+                            <td>
+                                <a href="{% url 'DomainUpdate' pk=domain.id %}" class="btn btn-info btn-sm">编辑</a>
+                                <a href="{% url 'DomainDel' domain.id %}" class="btn btn-danger btn-sm">删除</a>
+                            </td>
+
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+
+                {% if is_paginated %}
+
+                        <ul class="pagination" style="float:right">
+                            <li class="page-item disabled">
+                                {% if page_obj.has_previous %}
+                                    <a>共{{ paginator.count }}条结果</a>
+                                    <li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+                                {% else %}
+                                    <a>共{{ paginator.count }}条结果</a>
+                                    <li class="disabled"><span>&laquo;</span></li>
+                                {% endif %}
+
+                            {% for i in paginator.page_range %}
+                                {% if paginator.num_pages > 10 %}
+
+                                    {% if i < 7 or i > paginator.num_pages|add:-5 %}
+                                        {% if i == 6 %}
+                                            <li><a >...</a></li>
+                                        {% else  %}
+                                            {% if page_obj.number == i %}
+                                                <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                                            {% else %}
+                                                <li><a href="?page={{ i }}">{{ i }}</a></li>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %}
+                                {% else %}
+
+                                    {% if page_obj.number == i %}
+                                        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                                    {% else %}
+                                        <li><a href="?page={{ i }}">{{ i }}</a></li>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                            {% if page_obj.has_next %}
+                                <li><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+                            {% else %}
+                                <li class="disabled"><span>&raquo;</span></li>
+                            {% endif %}
+                        </ul>
+
+                        </ul>
+
+
+                {% endif %}
+            </div>
+            <!-- /.box-body -->
+
+        </div>
+
+    </section>
+{% endblock %}
+
+

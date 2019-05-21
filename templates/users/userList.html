@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block pagetitle %} 用户管理   {% endblock %}
+{% block pagetitle_1 %} 系统用户 {% endblock %}
+
+
+
+{% block page_content %}
+    <section class="content" xmlns="http://www.w3.org/1999/html">
+        <div class="box">
+            <div class="box-header">
+                <a href="{% url 'UserCreate' %}" class="btn btn-primary btn-success">新建用户</a>
+                <a href="{% url 'UserDel' %}" class="btn btn-primary btn-danger">删除所选</a>
+                <form style="width: 253px" id="search_from" method="get" action="" class="pull-right mail-search">
+                    <div class="input-group">
+                        <input style="width: 200px" type="text" id="searche_input" name="Searche" placeholder="Searche" class="form-control ">
+                        <div class="input-group-btn">
+                            <button id="search_btn" type="submit"   class="btn  btn-primary btn-success">搜索</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+
+
+
+
+            <!-- /.box-header -->
+            <div class="box-body text-center" >
+                <table id="example1" class=" text-center table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th class="text-center">
+                            <input type="checkbox" id="check_all" onclick="checkAll('check_all', 'checked')">
+                        </th>
+                        <th>名称</th>
+                        <th>用户名</th>
+                        <th>Email</th>
+                        <th>角色</th>
+                        <th>状态</th>
+                        <th>最后登陆时间</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="checked" value="{{ user.id }}">
+                            </td>
+                            <td>{{ user.last_name }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                {% if user.is_superuser %}
+                                     管理员
+                                {% else %}
+                                    用户
+                            {% endif %}
+                            </td>
+
+                            <td>
+                                {% if user.is_active %}
+                                    <i class="fa fa-check text-green"></i>
+                                {% else %}
+                                    <i class="fa fa-times text-red"></i>
+                            {% endif %}
+                            </td>
+
+                            <td>{{ user.last_login|date:"Y-m-d H:i"}}</td>
+                            <td>
+                                <a href="{% url 'UserUpdate' pk=user.id %}" class="btn btn-info btn-sm">编辑</a>
+                                {% if user.is_active %}
+                                    <a href="{% url 'UserLocks' %}?id={{ user.id }}" class="btn btn-warning btn-sm">封停</a>
+                                {% elif  not user.is_active %}
+                                    <a href="{% url 'UserLocks' %}?id={{ user.id }}" class="btn btn-success btn-sm">解封</a>
+                                {% elif user.is_active == None %}
+                                {% endif %}
+                                <a href="{% url 'UserDel' %}?id={{ user.id }}" class="btn btn-danger btn-sm ">删除</a>
+                            </td>
+
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+
+                {% if is_paginated %}
+
+                        <ul class="pagination" style="float:right">
+                            <li class="page-item disabled">
+                                {% if page_obj.has_previous %}
+                                    <a>共{{ paginator.count }}条结果</a>
+                                    <li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+                                {% else %}
+                                    <a>共{{ paginator.count }}条结果</a>
+                                    <li class="disabled"><span>&laquo;</span></li>
+                                {% endif %}
+                            {% for i in paginator.page_range %}
+                                {% if page_obj.number == i %}
+                                    <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                                {% else %}
+                                    <li><a href="?page={{ i }}">{{ i }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                            {% if page_obj.has_next %}
+                                <li><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+                            {% else %}
+                                <li class="disabled"><span>&raquo;</span></li>
+                            {% endif %}
+                        </ul>
+
+                        </ul>
+
+
+                {% endif %}
+            </div>
+            <!-- /.box-body -->
+
+        </div>
+
+    </section>
+{% endblock %}
+
+

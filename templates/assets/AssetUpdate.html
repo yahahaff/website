@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+
+{% block pagetitle %} 更新用户   {% endblock %}
+{% block pagetitle_1 %} 系统用户 {% endblock %}
+
+
+
+{% block page_content %}
+    <section class="content " xmlns="http://www.w3.org/1999/html">
+        <div class="row">
+            <div class="col-lg-6 col-md-8 col-sm-10">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% load widget_tweaks %}
+                    {% if form.non_field_errors %}
+
+                        <div class="alert alert-danger" role="alert">
+                            {% for error in form.non_field_errors %}
+                                <p{% if forloop.last %} class="mb-0"{% endif %}>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% for field in form %}
+                        <div class="form-group">
+                            {{ field.label_tag }}
+                            {% render_field field class="form-control" %}
+
+
+                            {% for error in field.errors %}
+                                <div class="invalid-feedback">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                            {% if field.help_text %}
+                                <small class="form-text text-muted">
+                                    {{ field.help_text|safe }}
+                                </small>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+
+
+                    <button type="submit" class="btn btn-success">更新</button>
+                </form>
+            </div>
+        </div>
+
+    </section>
+{% endblock %}
+
+
