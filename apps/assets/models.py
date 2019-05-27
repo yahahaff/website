@@ -3,6 +3,8 @@ from django.db import models
 # Create your models here.
 #
 class Platform(models.Model):
+    platform_code = models.CharField(max_length=16, default='', unique=True,
+                                     help_text="项目代码")
     platform_name = models.CharField(max_length=64, unique=True, default='',
                                      verbose_name=('Platform_name'), help_text="项目平台")
 
@@ -42,4 +44,6 @@ class Assets(models.Model):
     date_created = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name=('Date created'))
     comment = models.TextField(max_length=128, default='', blank=True, verbose_name=('备注'))
 
+    def __str__(self):
+        return self.ip
 

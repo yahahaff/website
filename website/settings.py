@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'assets.apps.AssetsConfig',
     'domains.apps.DomainsConfig',
+    'application.apps.ApplicationConfig',
     'widget_tweaks',
 
 ]
