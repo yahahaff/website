@@ -166,7 +166,7 @@ LOGIN_URL = 'login'
 
 APSCHEDULER_DATETIME_FORMAT =  "N j, Y, f:s a"  # Default
 
-
+LOGPATH = os.path.join(BASE_DIR, 'logs')
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -187,7 +187,7 @@ LOGGING = {
         'default': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/tmp/default.log',
+            'filename': '{}/website.log'.format(LOGPATH),
             'maxBytes': 1024 * 1024 * 5,
             'backupCount': 5,
             'formatter': 'verbose',
