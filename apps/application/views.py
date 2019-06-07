@@ -1,6 +1,7 @@
 
 # Create your views here.
 import os
+from datetime import datetime
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import View, ListView, CreateView, DetailView, UpdateView, DeleteView
@@ -81,13 +82,16 @@ class ApplicationUpdate(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
             pt = 'All'
         return reverse('ApplicationList', kwargs={'pt': pt})
 
-class ApplicationGo(LoginRequiredMixin,SuccessMessageMixin,View):
-    """
+class ApplicationGo(LoginRequiredMixin,SuccessMessageMixin,DetailView):
+    model = Application
+    template_name = 'application/ApplicationGOdetail.html'
+    context_object_name = 'applicationGO'
+    queryset = Application.objects.all()
+    ordering = ['-update_time']
 
-    """
 
-    def get(self, request, *args, **kwargs):
-        return render(request, 'application/xterm.html')
+
+
 
 @login_required
 def ApplicationStop(request, pk):
@@ -141,3 +145,43 @@ def ApplicationStart(request, pk):
     return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
 
 
+@login_required
+def ApplicationStaticGo(request, pk):
+    getUrl = '10.46.5.246'
+    if request.method == "GET":
+        obj = Application.objects.get(pk=pk)
+        pt = Platform.objects.get(pk=obj.platform_id)
+        dowload = '/tmp/{user}/'.format(user=request.user)
+        dowload_name = obj.package_name
+        date = datetime.now().strftime('%Y%m%d_%H%M')
+        new_name = obj.package_name.split('.')[0]+"_{user}_{date}.zip".format(user=request.user, date=date)
+
+        ssh = SSHRrmote(str(obj.ipaddress))
+        ssh.Run_Cmmond("test {dowload}|mkdir -p {dowload}".format(dowload=dowload))
+        #wget --ftp-user=USERNAME --ftp-password=PASSWORD url  使用FTP
+        # 下载文件
+        wget_result = ssh.Run_Cmmond(
+            "wget -O {dowload}/{newname} {url}/{user}/{dowload_name} ".format(dowload=dowload, newname=new_name,
+                                                            dowload_name=dowload_name, url=getUrl, user=request.user))
+        if wget_result[2] != 0:
+            messages.error(request, '静态发布失败，{}'.format(wget_result[1]))
+            ssh.client.close()
+            return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
+        #备份文件
+        bak_result = ssh.Run_Cmmond(
+            "cp -r {dst_path} {backup}/{name}_{date}".format(dst_path=obj.dst_path, backup=obj.backup_path,
+                                                           name=obj.dst_path.split('/')[-1], date=date))
+        if bak_result[2] != 0:
+            messages.error(request, '静态发布失败，{}'.format(bak_result[1]))
+            ssh.client.close()
+            return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
+        #解压覆盖文件
+        unzip_result = ssh.Run_Cmmond(
+            "unzip -o {path}/{filename} -d {dst_path}".format(path=dowload, filename=new_name,
+                                                                               dst_path=obj.dst_path))
+        if unzip_result[2] != 0:
+            messages.error(request, '静态发布失败，{}'.format(unzip_result[1]))
+            ssh.client.close()
+            return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
+        messages.success(request, '静态发布成功')
+    return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))

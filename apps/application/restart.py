@@ -23,9 +23,15 @@ class SSHRrmote(object):
         print('建立连接成功')
 
     def Run_Cmmond(self, cmd):
-        stdin, stdout, stderr = self.client.exec_command(cmd)
+        """
 
-        return (stdout.read().decode('utf-8'), stderr.read().decode('utf-8'))
+        :param cmd:
+        :return: (stdout,stderr,exit_status)
+        """
+        stdin, stdout, stderr = self.client.exec_command(cmd)
+        exit_status = stdout.channel.recv_exit_status() #获取命令执行状态返回吗
+        print(exit_status)
+        return (stdout.read().decode('utf-8'), stderr.read().decode('utf-8'), exit_status)
 
     def file_pull(self):
         #有待改进，因为连接多个主机时，会覆盖文件

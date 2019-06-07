@@ -62,10 +62,15 @@
                             {% endif %}
                             </td>
                             <td>
-                                <a href="{% url 'ApplicationUpdate' pk=app.id %}" class="btn btn-primary btn-sm">编辑</a>
-                                <a href="{% url 'ApplicationStop' pk=app.id %}" class="btn btn-danger btn-sm">停止</a>
-                                <a href="{% url 'ApplicationStart' pk=app.id %}" class="btn btn-success btn-sm">启动</a>
-                                <a href="{% url 'ApplicationGo' pk=app.id %}" class="btn btn-yahoo btn-sm">发布</a>
+                                {% ifequal app.items 'static' %}
+                                    <a href="{% url 'ApplicationUpdate' pk=app.id %}" class="btn btn-primary btn-sm">编辑</a>
+                                    <a href="{% url 'ApplicationStaticGo' pk=app.id %}" class="btn btn-yahoo btn-sm">发布</a>
+                                {% else %}
+                                    <a href="{% url 'ApplicationUpdate' pk=app.id %}" class="btn btn-primary btn-sm">编辑</a>
+                                    <a href="{% url 'ApplicationStop' pk=app.id %}" class="btn btn-danger btn-sm">停止</a>
+                                    <a href="{% url 'ApplicationStart' pk=app.id %}" class="btn btn-success btn-sm">启动</a>
+                                    <a href="{% url 'ApplicationGo' pk=app.id %}" class="btn btn-yahoo btn-sm">发布</a>
+                                {% endifequal %}
                             </td>
 
                         </tr>

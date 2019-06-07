@@ -9,6 +9,7 @@ urlpatterns = [
      path('Application/Update/<pk>/', ApplicationUpdate.as_view(), name='ApplicationUpdate'),
      path('Application/stop/<pk>/', ApplicationStop, name='ApplicationStop'),
      path('Application/start/<pk>/', ApplicationStart, name='ApplicationStart'),
+     path('Application/static/<pk>/', ApplicationStaticGo, name='ApplicationStaticGo'),
      path('Application/GO/<pk>/', ApplicationGo.as_view(), name='ApplicationGo')
 
 
