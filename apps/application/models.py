@@ -25,3 +25,14 @@ class Application(models.Model):
     comment = models.TextField(max_length=128, default='', blank=True, verbose_name=('备注'))
 
 
+class App_history(models.Model):
+    items = models.CharField(max_length=100)
+    platform = models.CharField(max_length=20, default='')
+    env = models.CharField(max_length=10,  verbose_name=('环境'), default='', )
+    status = models.BooleanField(default=True, verbose_name=('状态'))
+    type = models.IntegerField(default='0', verbose_name=('发布类型'), help_text='0 静态 1 全量war包 2 增量包 3 Jar包')
+    app_dir = models.CharField(max_length=200, default='', verbose_name=('发布路径'), help_text='文件发布路径')
+    backup = models.CharField(max_length=200, default='', verbose_name=('备份地址'), help_text='备份文件')
+    ipaddress = models.CharField(max_length=20, default='1', verbose_name=('服务器地址ID'),help_text='服务器IP地址')
+    opsuser = models.CharField(max_length=100, default='root', verbose_name=('属主'), help_text='文件属主或启动用户')
+    update_time = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name=('更新时间'))

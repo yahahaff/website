@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.views.generic import View, ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Application
+from .models import Application, App_history
 from assets.models import Platform
 from django.shortcuts import get_object_or_404
 from .forms import *
@@ -16,7 +16,7 @@ from django.urls import reverse_lazy
 from django.db.models import Q
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
-from .restart import SSHRrmote
+from .sshclient import SSHRrmote, SSHConnectException
 import logging
 logger = logging.getLogger('django')
 
@@ -142,6 +142,7 @@ def ApplicationStart(request, pk):
         messages.success(request, '应用启动成功')
         obj.status = True
         obj.save()
+
     return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
 
 
@@ -155,8 +156,12 @@ def ApplicationStaticGo(request, pk):
         dowload_name = obj.package_name
         date = datetime.now().strftime('%Y%m%d_%H%M')
         new_name = obj.package_name.split('.')[0]+"_{user}_{date}.zip".format(user=request.user, date=date)
-
-        ssh = SSHRrmote(str(obj.ipaddress))
+        historyinfo = {'items': obj.items,}
+        try:
+            ssh = SSHRrmote(str(obj.ipaddress))
+        except SSHConnectException as e:
+            messages.error(request, '服务器连接失败, {}'.format(e))
+            return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
         ssh.Run_Cmmond("test {dowload}|mkdir -p {dowload}".format(dowload=dowload))
         #wget --ftp-user=USERNAME --ftp-password=PASSWORD url  使用FTP
         # 下载文件
@@ -185,3 +190,19 @@ def ApplicationStaticGo(request, pk):
             return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
         messages.success(request, '静态发布成功')
     return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
+
+
+@login_required
+def updateHistory(info):
+    obj = App_history
+    obj.items = info['items']
+    obj.type = info['type']
+    obj.platform = info['platform']
+    obj.status = info['status']
+    obj.ipaddress = info['ipaddress']
+    obj.app_dir = info['app_dir']
+    obj.backup = info['backup']
+    obj.env = info['env']
+    obj.opsuser = info['opsuser']
+    obj.save()
+

@@ -1,25 +1,24 @@
 import paramiko
-from paramiko.ssh_exception import NoValidConnectionsError, AuthenticationException, SSHException
+
+
+class SSHConnectException(Exception):
+    """自定义SSH连接错误捕获"""
+    pass
 
 class SSHRrmote(object):
     def __init__(self, hostname, username='root', port=22):
         self.hostname = hostname
         self.username = username
         self.port = port
-        #pravie_key_path = '/root/.ssh/id_rsa'
+        # pravie_key_path = '/root/.ssh/id_rsa'
         pravie_key_path = '/tmp/id_rsa'
         key = paramiko.RSAKey.from_private_key_file(pravie_key_path)
         try:
             self.client = paramiko.SSHClient()
             self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             self.client.connect(hostname=self.hostname, port=int(self.port), pkey=key, username=self.username)
-
-        except NoValidConnectionsError as e:
-            print('...连接失败...', e)
-        except AuthenticationException as e:
-            print('...认证失败错误...', e)
         except Exception as e:
-            print(e)
+            raise SSHConnectException(e)
         print('建立连接成功')
 
     def Run_Cmmond(self, cmd):
@@ -40,7 +39,7 @@ class SSHRrmote(object):
             trans = paramiko.Transport(self.hostname,int(self.port))
             trans.connect(username=self.username,password=self.passwd)
             print('hello')
-        except SSHException as e:
+        except Exception as e:
             print("连接失败")
         else:
             sftp = paramiko.SFTPClient.from_transport(trans)
@@ -58,7 +57,7 @@ class SSHRrmote(object):
             trans = paramiko.Transport(self.hostname, int(self.port))
             trans.connect(username=self.username, password=self.passwd)
 
-        except SSHException as e:
+        except Exception as e:
             print("连接失败")
         else:
             sftp = paramiko.SFTPClient.from_transport(trans)
@@ -70,9 +69,4 @@ class SSHRrmote(object):
                 print("参数有误")
             trans.close()
 
-
-# t = SSHRrmote('10.46.5.246', 'root', 22)
-# a = t.Run_Cmmond('df -h')
-# t.client.close()
-# print(a)
 
