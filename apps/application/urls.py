@@ -10,7 +10,7 @@ urlpatterns = [
      path('Application/stop/<pk>/', ApplicationStop, name='ApplicationStop'),
      path('Application/start/<pk>/', ApplicationStart, name='ApplicationStart'),
      path('Application/static/<pk>/', ApplicationStaticGo, name='ApplicationStaticGo'),
-     path('Application/GO/<pk>/', ApplicationGo.as_view(), name='ApplicationGo')
-
-
+     path('Application/GO/<pk>/', ApplicationGo.as_view(), name='ApplicationGo'),
+     path('Application/historyList/', HistoryList.as_view(), name='HistoryList'),
+     path('Application/rollback/<pk>/', rollback, name='rollback'),
 ]

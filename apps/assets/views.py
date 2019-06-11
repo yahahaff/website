@@ -30,7 +30,8 @@ class AssetsList(LoginRequiredMixin, ListView):
         context = super().get_queryset()
         keyword = self.request.GET.get('Searche', '')
         if keyword:
-            context = Assets.objects.filter(Q(ip__icontains=keyword) | Q(location__icontains=keyword))
+            #context = Assets.objects.filter(Q(ip__icontains=keyword) | Q(location__icontains=keyword))
+            context = Assets.objects.filter(ip=keyword)
         return context
 
 

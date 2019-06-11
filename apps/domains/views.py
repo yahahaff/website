@@ -40,9 +40,8 @@ class DomainList(LoginRequiredMixin, ListView):
         context = super().get_queryset()
         keyword = self.request.GET.get('Searche', '')
         if keyword:
-            #context = Domains.objects.filter(domain__icontains=keyword)
-            context = Domains.objects.filter(
-                Q(domain__icontains=keyword) | Q(resolve__platform_name__contains=keyword))
+
+            context = Domains.objects.filter(domain__icontains=keyword)
         return context
 
 class Domainssl(LoginRequiredMixin, ListView):
@@ -63,9 +62,9 @@ class Domainssl(LoginRequiredMixin, ListView):
         context = super().get_queryset()
         keyword = self.request.GET.get('Searche', '')
         if keyword:
-            #context = Domains.objects.filter(domain__icontains=keyword)
-            context = Domains.objects.filter(
-                Q(domain__icontains=keyword) | Q(resolve__platform_name__contains=keyword))
+            context = Domains.objects.filter(domain__icontains=keyword)
+            # context = Domains.objects.filter(
+            #     Q(domain__icontains=keyword) | Q(resolve__platform_name__contains=keyword))
 
         return context
 
