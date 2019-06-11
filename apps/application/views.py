@@ -142,6 +142,7 @@ def ApplicationStop(request, pk):
         obj.status = False
         obj.save()
         messages.success(request, '应用停止成功')
+        logger.info('应用停止成功')
     return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
 
 

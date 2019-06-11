@@ -1,5 +1,6 @@
 import paramiko
-
+import logging
+logger = logging.getLogger('django')
 
 class SSHConnectException(Exception):
     """自定义SSH连接错误捕获"""
@@ -18,18 +19,18 @@ class SSHRrmote(object):
             self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             self.client.connect(hostname=self.hostname, port=int(self.port), pkey=key, username=self.username)
         except Exception as e:
+            logger.error('主机{}建立失败'.format(self.hostname), e)
             raise SSHConnectException(e)
-        print('建立连接成功')
+        logger.info('主机{}建立连接成功'.format(self.hostname))
 
     def Run_Cmmond(self, cmd):
         """
-
         :param cmd:
         :return: (exit_status,stdout,stderr,)
         """
         stdin, stdout, stderr = self.client.exec_command(cmd)
         exit_status = stdout.channel.recv_exit_status() #获取命令执行状态返回吗
-        print(exit_status)
+        logger.info('执行命令:{} 执行状态{}'.format(cmd, exit_status))
         return (exit_status, stdout.read().decode('utf-8'), stderr.read().decode('utf-8'), )
 
     def file_pull(self):
