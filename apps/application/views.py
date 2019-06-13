@@ -129,20 +129,23 @@ def ApplicationStop(request, pk):
             messages.error(request, '服务器连接失败, {}'.format(e))
             return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
         grestr = os.path.dirname(obj.dst_path)
+        #查看进程详情
         proResult = ssh.Run_Cmmond("ps -ef|grep '{}/conf'|grep -v grep|grep -v tail".format(grestr))
-        logger.info(proResult)
+        logger.info('停止应用进程详情:{}'.format(proResult))
         killcmd = "ps -ef|grep '{}/conf'|grep -v grep|grep -v tail".format(grestr) + "|awk '{print $2}'|xargs kill -9"
         #killcmd = "ps -ef|grep '{}/conf'|grep -v grep|grep -v tail".format(grestr) + "|awk '{print $2}'"
         result = ssh.Run_Cmmond(killcmd)
-        if result[1]:
-            logger.error("应用进程不存在，{}".format(result[1]))
-            messages.error(request, '应用进程不存在，{}'.format(result[1]))
-            return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
+        logger.info('KILL进程执结果:{}'.format(result))
+    if result[0] != 1:
         ssh.client.close()
-        obj.status = False
-        obj.save()
-        messages.success(request, '应用停止成功')
-        logger.info('应用停止成功')
+        logger.error("应用进程停止失败，{}".format(result[1]))
+        messages.error(request, '应用进程停止失败，{}'.format(result[1]))
+        return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
+    ssh.client.close()
+    obj.status = False
+    obj.save()
+    messages.success(request, '应用停止成功')
+    logger.info('应用停止成功')
     return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
 
 
@@ -160,15 +163,16 @@ def ApplicationStart(request, pk):
         startUp = os.path.dirname(obj.dst_path)
         grestr = os.path.dirname(obj.dst_path)
         wcl = ssh.Run_Cmmond("ps -ef|grep '{}/conf'|grep -v grep|grep -v tail|wc -l".format(grestr))
-        number = wcl[0].split('\n')[0]
-        if wcl[0] and int(number) >= 1:
+
+        if int(wcl[1]) >= 1:
             messages.error(request, '应用已经启动，请勿重复启动')
             return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
+        # 执行启动动作
         result = ssh.Run_Cmmond("{}/bin/startup.sh".format(startUp))
-        print(result)
-        if result[1]:
+        logger.info('开始执行：{}/bin/startup.sh---应用启动结果: {}'.format(startUp,result))
+        if result[0] != 0:
             logger.error("应用启动失败，{}".format(result[1]))
-            messages.error(request, '应用启动失败，{}'.format(result[1]))
+            messages.error(request, '应用启动失败{}'.format(result[1]))
             return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
         logger.info("{}/bin/startup.sh 执行完毕".format(startUp))
         ssh.client.close()
@@ -182,7 +186,7 @@ def ApplicationStart(request, pk):
 @login_required
 def ApplicationStaticGo(request, pk):
     #getUrl = '0.46.5.246'
-    getUrl = 'ftp://10.46.5.246'  #FTP使用
+    getUrl = 'ftp://10.46.5.246/开发人员发布专用'  #FTP使用
     if request.method == "GET":
         obj = Application.objects.get(pk=pk)
         pt = Platform.objects.get(pk=obj.platform_id)
@@ -208,6 +212,7 @@ def ApplicationStaticGo(request, pk):
         #                                                     dowload_name=dowload_name, url=getUrl, user=request.user))
         if wget_result[0] != 0:
             messages.error(request, '静态发布失败，{}'.format(wget_result[2]))
+            logger.error('静态下载失败，{}'.format(wget_result))
             ssh.client.close()
             return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
         #备份文件
@@ -217,14 +222,16 @@ def ApplicationStaticGo(request, pk):
         if bak_result[0] != 0:
             ssh.client.close()
             messages.error(request, '静态发布失败，{}'.format(bak_result[2]))
+            logger.error('静态备份失败{}'.format(bak_result))
             return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
         #解压覆盖文件
         unzip_result = ssh.Run_Cmmond(
-            "unzip -o {path}/{filename} -d {dst_path}".format(path=dowload, filename=new_name,
+            "unzip -O uft-8 -o {path}/{filename} -d {dst_path}".format(path=dowload, filename=new_name,
                                                                                dst_path=obj.dst_path))
         if unzip_result[0] != 0:
             ssh.client.close()
             messages.error(request, '静态发布失败，{}'.format(unzip_result[2]))
+            logger.error('静态解压失败{}'.format(unzip_result))
             return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
         messages.success(request, '静态发布成功')
 
@@ -262,13 +269,16 @@ def rollback(request, pk):
         ssh = SSHRrmote(str(obj.ipaddress))
     except SSHConnectException as e:
         messages.error(request, '服务器连接失败, {}'.format(e))
+        logger.error('服务器连接失败, {}'.format(e))
         return HttpResponseRedirect(reverse('HistoryList'))
     result = ssh.Run_Cmmond(
         "rm -rf {app_path} && cp -r {back_path} {app_path}".format(app_path=obj.app_dir, back_path=obj.backup))
     if result[0] != 0:
         ssh.client.close()
         messages.error(request, '静态回滚失败，{}'.format(result[1]))
+        logger.error('静态回滚失败{}'.format(result))
         return HttpResponseRedirect(reverse('HistoryList'))
     messages.success(request, '静态:{}回滚成功'.format(obj.backup))
+    logger.info('静态:{}回滚成功'.format(obj.backup))
     ssh.client.close()
     return HttpResponseRedirect(reverse('HistoryList'))
