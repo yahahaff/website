@@ -40,9 +40,12 @@ class ApplicationList(LoginRequiredMixin, ListView):
         #context = super().get_queryset()
         #通过 kwargs.get方法获取外部url中所定义的参数名成的参数值
         pt = self.kwargs.get('pt')
-        print(pt)
+
         keyword = self.request.GET.get('Searche', '')   #获取查询关键字
         if pt == 'All':
+            if keyword:
+                context = Application.objects.filter(items=keyword)
+                return context
             context = Application.objects.all()
         elif keyword:
             context = Application.objects.filter(platform__platform_code=pt, items=keyword)
