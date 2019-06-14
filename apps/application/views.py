@@ -188,7 +188,7 @@ def ApplicationStart(request, pk):
 @login_required
 def ApplicationStaticGo(request, pk):
     #getUrl = '0.46.5.246'
-    getUrl = 'ftp://10.46.5.246/开发人员发布专用'  #FTP使用
+    getUrl = 'ftp://10.46.5.246/开发人员发布'  #FTP使用
     if request.method == "GET":
         obj = Application.objects.get(pk=pk)
         pt = Platform.objects.get(pk=obj.platform_id)
@@ -205,6 +205,7 @@ def ApplicationStaticGo(request, pk):
             return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
         ssh.Run_Cmmond("test {dowload}|mkdir -p {dowload}".format(dowload=dowload))
         #wget --ftp-user=USERNAME --ftp-password=PASSWORD url  使用FTP
+        logger.info('开始下载更新文件')
         wget_result = ssh.Run_Cmmond(
             'wget -O {dowload}/{newname} {url}/{user}/{dowload_name} --ftp-user={ftpuser} --ftp-password={ftppassword}'.format(
                 dowload=dowload, newname=new_name, dowload_name=dowload_name, url=getUrl, user=request.user,ftpuser='sys_pub', ftppassword='sys_pub123'))
@@ -284,3 +285,6 @@ def rollback(request, pk):
     logger.info('静态:{}回滚成功'.format(obj.backup))
     ssh.client.close()
     return HttpResponseRedirect(reverse('HistoryList'))
+
+
+
