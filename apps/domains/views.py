@@ -175,7 +175,7 @@ def Get_domainInfo(request, pk):
 #     # 另一种方式为每周周一到周五固定时间执行任务，对应代码为：
 #     #@register_job(scheduler, 'cron', day_of_week='mon-fri', hour='9', minute='30', second='10', id='task_time')
 #
-#     @register_job(scheduler, 'cron', day_of_week='mon-sun', hour=11, minute=18, second=0, id='task_time')
+#     @register_job(scheduler, 'cron', day_of_week='mon-sun', hour=9, minute=10, id='task_time')
 #     def my_job():
 #         logger.info('进入task任务')
 #         task()

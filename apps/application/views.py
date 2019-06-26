@@ -138,7 +138,7 @@ def ApplicationStop(request, pk):
         #killcmd = "ps -ef|grep '{}/conf'|grep -v grep|grep -v tail".format(grestr) + "|awk '{print $2}'"
         result = ssh.Run_Cmmond(killcmd)
         logger.info('KILL进程执结果:{}'.format(result))
-    if result[0] != 1:
+    if result[0] != 0:
         ssh.client.close()
         logger.error("应用进程停止失败，{}".format(result[1]))
         messages.error(request, '应用进程停止失败，{}'.format(result[1]))
@@ -220,7 +220,7 @@ def ApplicationStaticGo(request, pk):
             return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
         #备份文件
         bak_result = ssh.Run_Cmmond(
-            "cp -r {dst_path} {backup}/{name}_{date}".format(dst_path=obj.dst_path, backup=obj.backup_path,
+            "mv {dst_path} {backup}/{name}_{date}".format(dst_path=obj.dst_path, backup=obj.backup_path,
                                                            name=obj.dst_path.split('/')[-1], date=date))
         if bak_result[0] != 0:
             ssh.client.close()
@@ -229,7 +229,7 @@ def ApplicationStaticGo(request, pk):
             return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
         #解压覆盖文件
         unzip_result = ssh.Run_Cmmond(
-            "unzip -O uft-8 -o {path}/{filename} -d {dst_path}".format(path=dowload, filename=new_name,
+            "unzip -O uft-8  {path}/{filename} -d {dst_path}".format(path=dowload, filename=new_name,
                                                                                dst_path=obj.dst_path))
         if unzip_result[0] != 0:
             ssh.client.close()
