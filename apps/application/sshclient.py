@@ -11,8 +11,8 @@ class SSHRrmote(object):
         self.hostname = hostname
         self.username = username
         self.port = port
-        # pravie_key_path = '/root/.ssh/id_rsa'
-        pravie_key_path = '/tmp/id_rsa'
+        pravie_key_path = '/root/.ssh/id_rsa'
+        #pravie_key_path = '/tmp/id_rsa'
         key = paramiko.RSAKey.from_private_key_file(pravie_key_path)
         try:
             self.client = paramiko.SSHClient()

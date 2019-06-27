@@ -165,23 +165,23 @@ def Get_domainInfo(request, pk):
 
 
 #开启定时工作
-# try:
-#     # 实例化调度器
-#     scheduler = BackgroundScheduler()
-#     # 调度器使用DjangoJobStore()
-#     scheduler.add_jobstore(DjangoJobStore(),  "default",)
-#     # 设置定时任务，选择方式为interval，时间间隔为60s
-#     # @register_job(scheduler, "interval", seconds=6000)
-#     # 另一种方式为每周周一到周五固定时间执行任务，对应代码为：
-#     #@register_job(scheduler, 'cron', day_of_week='mon-fri', hour='9', minute='30', second='10', id='task_time')
-#
-#     @register_job(scheduler, 'cron', day_of_week='mon-sun', hour=9, minute=10, id='task_time')
-#     def my_job():
-#         logger.info('进入task任务')
-#         task()
-#     register_events(scheduler)
-#     scheduler.start()
-# except Exception as e:
-#     logger.error(e)
-#     # 有错误就停止定时器
-#     scheduler.shutdown()
+try:
+    # 实例化调度器
+    scheduler = BackgroundScheduler()
+    # 调度器使用DjangoJobStore()
+    scheduler.add_jobstore(DjangoJobStore(),  "default",)
+    # 设置定时任务，选择方式为interval，时间间隔为60s
+    # @register_job(scheduler, "interval", seconds=6000)
+    # 另一种方式为每周周一到周五固定时间执行任务，对应代码为：
+    #@register_job(scheduler, 'cron', day_of_week='mon-fri', hour='9', minute='30', second='10', id='task_time')
+
+    @register_job(scheduler, 'cron', day_of_week='mon-sun', hour=9, minute=10, id='task_time')
+    def my_job():
+        logger.info('进入task任务')
+        task()
+    register_events(scheduler)
+    scheduler.start()
+except Exception as e:
+    logger.error(e)
+    # 有错误就停止定时器
+    scheduler.shutdown()
