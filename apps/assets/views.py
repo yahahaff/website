@@ -14,7 +14,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 # Create your views here.
 class AssetsList(LoginRequiredMixin, ListView):
     """
-         系统用户列表
+         资产列表
     """
     model = Assets
     template_name = 'assets/AssetsList.html'  # Default: <app_label>/<model_name>_list.html
@@ -31,7 +31,7 @@ class AssetsList(LoginRequiredMixin, ListView):
         keyword = self.request.GET.get('Searche', '')
         if keyword:
             #context = Assets.objects.filter(Q(ip__icontains=keyword) | Q(location__icontains=keyword))
-            context = Assets.objects.filter(ip=keyword)
+            context = Assets.objects.filter(ip__icontains=keyword)
         return context
 
 

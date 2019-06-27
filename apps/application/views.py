@@ -44,11 +44,11 @@ class ApplicationList(LoginRequiredMixin, ListView):
         keyword = self.request.GET.get('Searche', '')   #获取查询关键字
         if pt == 'All':
             if keyword:
-                context = Application.objects.filter(items=keyword)
+                context = Application.objects.filter(items__icontains=keyword)
                 return context
             context = Application.objects.all()
         elif keyword:
-            context = Application.objects.filter(platform__platform_code=pt, items=keyword)
+            context = Application.objects.filter(platform__platform_code=pt, items__icontains=keyword)
         else:
             context = Application.objects.filter(platform__platform_code=pt)
         return context
@@ -187,15 +187,17 @@ def ApplicationStart(request, pk):
 
 @login_required
 def ApplicationStaticGo(request, pk):
-    #getUrl = '0.46.5.246'
-    getUrl = 'ftp://10.46.5.246/开发人员发布'  #FTP使用
+    getUrl = 'http://121.127.22.242:83'      #HTTP使用
+    #getUrl = 'ftp://10.46.5.246/开发人员发布'  #FTP使用
     if request.method == "GET":
         obj = Application.objects.get(pk=pk)
         pt = Platform.objects.get(pk=obj.platform_id)
         dowload = '/tmp/{user}/'.format(user=request.user)
         dowload_name = obj.package_name
         date = datetime.now().strftime('%Y%m%d_%H%M%S')
-        new_name = obj.package_name.split('.')[0]+"_{user}_{date}.zip".format(user=request.user, date=date)
+        #new_name = obj.package_name.split('.')[0]+"_{user}_{date}.zip".format(user=request.user, date=date)
+
+
         historyinfo = {'items': obj.items, 'platform': obj.platform, 'env': obj.env, 'type': obj.type,
                        'app_dir': obj.dst_path, 'ip': obj.ipaddress, 'opsuser':request.user}
         try:
@@ -206,13 +208,16 @@ def ApplicationStaticGo(request, pk):
         ssh.Run_Cmmond("test {dowload}|mkdir -p {dowload}".format(dowload=dowload))
         #wget --ftp-user=USERNAME --ftp-password=PASSWORD url  使用FTP
         logger.info('开始下载更新文件')
+
+        # 下载文件 FTP使用
+        #wget_result = ssh.Run_Cmmond(
+        #    'wget -O --timeout=2 {dowload}/{name} {url}/{user}/{dowload_name} --ftp-user={ftpuser} --ftp-password={ftppassword}'.format(
+        #        dowload=dowload, name=obj.package_name, dowload_name=dowload_name, url=getUrl, user=request.user,ftpuser='sys_pub', ftppassword='sys_pub123'))
+
+        # 下载文件 HTTP使用
         wget_result = ssh.Run_Cmmond(
-            'wget -O {dowload}/{newname} {url}/{user}/{dowload_name} --ftp-user={ftpuser} --ftp-password={ftppassword}'.format(
-                dowload=dowload, newname=new_name, dowload_name=dowload_name, url=getUrl, user=request.user,ftpuser='sys_pub', ftppassword='sys_pub123'))
-        # 下载文件
-        # wget_result = ssh.Run_Cmmond(
-        #     "wget -O {dowload}/{newname} {url}/{user}/{dowload_name} ".format(dowload=dowload, newname=new_name,
-        #                                                     dowload_name=dowload_name, url=getUrl, user=request.user))
+             "wget -O --timeout=2 {dowload}/{name} {url}/{user}/{dowload_name} ".format(dowload=dowload, name=obj.package_name,
+                                                             dowload_name=dowload_name, url=getUrl, user=request.user))
         if wget_result[0] != 0:
             messages.error(request, '静态发布失败，{}'.format(wget_result[2]))
             logger.error('静态下载失败，{}'.format(wget_result))
@@ -229,7 +234,7 @@ def ApplicationStaticGo(request, pk):
             return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
         #解压覆盖文件
         unzip_result = ssh.Run_Cmmond(
-            "unzip -O uft-8  {path}/{filename} -d {dst_path}".format(path=dowload, filename=new_name,
+            "unzip -O uft-8  {path}/{filename} -d {dst_path}".format(path=dowload, filename=obj.package_name,
                                                                                dst_path=obj.dst_path))
         if unzip_result[0] != 0:
             ssh.client.close()
