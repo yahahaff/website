@@ -187,7 +187,7 @@ def ApplicationStart(request, pk):
 
 @login_required
 def ApplicationStaticGo(request, pk):
-    getUrl = 'http://121.127.22.242:83'      #HTTP使用
+    getUrl = 'http://121.127.22.242:83/online'      #HTTP使用
     #getUrl = 'ftp://10.46.5.246/开发人员发布'  #FTP使用
     if request.method == "GET":
         obj = Application.objects.get(pk=pk)
@@ -216,7 +216,7 @@ def ApplicationStaticGo(request, pk):
 
         # 下载文件 HTTP使用
         wget_result = ssh.Run_Cmmond(
-             "wget -O --timeout=2 {dowload}/{name} {url}/{user}/{dowload_name} ".format(dowload=dowload, name=obj.package_name,
+             "url --connect-timeout 1 -o {dowload}/{name} {url}/{user}/{dowload_name} ".format(dowload=dowload, name=obj.package_name,
                                                              dowload_name=dowload_name, url=getUrl, user=request.user))
         if wget_result[0] != 0:
             messages.error(request, '静态发布失败，{}'.format(wget_result[2]))
