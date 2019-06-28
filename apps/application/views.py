@@ -195,7 +195,7 @@ def ApplicationStaticGo(request, pk):
         dowload = '/tmp/{user}/'.format(user=request.user)
         dowload_name = obj.package_name
         date = datetime.now().strftime('%Y%m%d_%H%M%S')
-        #new_name = obj.package_name.split('.')[0]+"_{user}_{date}.zip".format(user=request.user, date=date)
+        new_name = obj.package_name.split('.')[0]+"_{user}_{date}.zip".format(user=request.user, date=date)
 
 
         historyinfo = {'items': obj.items, 'platform': obj.platform, 'env': obj.env, 'type': obj.type,
@@ -212,11 +212,11 @@ def ApplicationStaticGo(request, pk):
         # 下载文件 FTP使用
         #wget_result = ssh.Run_Cmmond(
         #    'wget -O --timeout=2 {dowload}/{name} {url}/{user}/{dowload_name} --ftp-user={ftpuser} --ftp-password={ftppassword}'.format(
-        #        dowload=dowload, name=obj.package_name, dowload_name=dowload_name, url=getUrl, user=request.user,ftpuser='sys_pub', ftppassword='sys_pub123'))
+        #        dowload=dowload, name=new_name, dowload_name=dowload_name, url=getUrl, user=request.user,ftpuser='sys_pub', ftppassword='sys_pub123'))
 
         # 下载文件 HTTP使用
         wget_result = ssh.Run_Cmmond(
-             "url --connect-timeout 1 -o {dowload}/{name} {url}/{user}/{dowload_name} ".format(dowload=dowload, name=obj.package_name,
+             "url --connect-timeout 1 -o {dowload}/{name} {url}/{user}/{dowload_name} ".format(dowload=dowload, name=new_name,
                                                              dowload_name=dowload_name, url=getUrl, user=request.user))
         if wget_result[0] != 0:
             messages.error(request, '静态发布失败，{}'.format(wget_result[2]))
@@ -234,7 +234,7 @@ def ApplicationStaticGo(request, pk):
             return HttpResponseRedirect(reverse('ApplicationList', kwargs={'pt': pt.platform_code}))
         #解压覆盖文件
         unzip_result = ssh.Run_Cmmond(
-            "unzip -O uft-8  {path}/{filename} -d {dst_path}".format(path=dowload, filename=obj.package_name,
+            "unzip -O uft-8  {path}/{filename} -d {dst_path}".format(path=dowload, filename=new_name,
                                                                                dst_path=obj.dst_path))
         if unzip_result[0] != 0:
             ssh.client.close()

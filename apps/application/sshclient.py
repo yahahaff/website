@@ -33,12 +33,13 @@ class SSHRrmote(object):
         logger.info('执行命令:{} 执行状态{}'.format(cmd, exit_status))
         return (exit_status, stdout.read().decode('utf-8'), stderr.read().decode('utf-8'), )
 
-    def file_pull(self):
+
+    def file_pull(self, file):
         #有待改进，因为连接多个主机时，会覆盖文件
         print('开始下载')
         try:
-            trans = paramiko.Transport(self.hostname,int(self.port))
-            trans.connect(username=self.username,password=self.passwd)
+            trans = paramiko.Transport(self.client.connect)
+            trans.connect(self.client.connect)
             print('hello')
         except Exception as e:
             print("连接失败")
