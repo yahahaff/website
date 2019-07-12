@@ -216,7 +216,7 @@ def ApplicationStaticGo(request, pk):
 
         # 下载文件 HTTP使用
         wget_result = ssh.Run_Cmmond(
-             "url --connect-timeout 1 -o {dowload}/{name} {url}/{user}/{dowload_name} ".format(dowload=dowload, name=new_name,
+             "curl --connect-timeout 1 -o {dowload}/{name} {url}/{user}/{dowload_name} ".format(dowload=dowload, name=new_name,
                                                              dowload_name=dowload_name, url=getUrl, user=request.user))
         if wget_result[0] != 0:
             messages.error(request, '静态发布失败，{}'.format(wget_result[2]))
